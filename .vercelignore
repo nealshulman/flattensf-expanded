@@ -1,5 +1,9 @@
-data/
-outputs/
-notebooks/
+/data/
+/outputs/
+/notebooks/
 .venv/
 .pytest_cache/
+/pyproject.toml
+/requirements.txt
+/sf_flat_routes/*.py
+/tests/*.py

@@ -1581,6 +1581,14 @@ window.Bundle = Bundle; window.inflate = inflate; window.loadBundle = loadBundle
       }
       this.setUnits(units);
       $("gpx").addEventListener("click", () => this.downloadGpx());
+      $("kml").addEventListener("click", () => this.downloadKml());
+      $("googlemap").addEventListener("click", () => {
+        const panel = $("googlepanel");
+        panel.hidden = false; panel.open = true;
+        $("googleurl").value = "";
+        $("googlestatus").textContent = "Import the route on show before pasting that map's link. This preserves the path as a saved line.";
+      });
+      $("googlecopy").addEventListener("click", () => this.copyGoogleMap());
       $("share").addEventListener("click", () => {
         const url = this.shareUrl(), box = $("sharebox"), btn = $("share");
         const done = () => { btn.textContent = "Link copied"; setTimeout(() => { btn.textContent = "Copy link"; }, 1800); };
@@ -1667,6 +1675,7 @@ window.Bundle = Bundle; window.inflate = inflate; window.loadBundle = loadBundle
 
     /* the flattest loops of about the chosen length from the start */
     recomputeLoop(fit) {
+      $("googlepanel").hidden = true;
       const { from, mode, loopMi } = this.state;
       this.family = null;
       const gen = ++this._gen;
@@ -1718,7 +1727,7 @@ window.Bundle = Bundle; window.inflate = inflate; window.loadBundle = loadBundle
         // it (the length slider moved down), is refitted and recentred
         if (fit === true || (fit === "auto" && (!this.inView() || this.viewShare() < 0.35))) this.fit();
         this.writeHash();
-        $("share").hidden = false; $("gpx").hidden = false; $("sharebox").hidden = true;
+        $("share").hidden = false; $("gpx").hidden = false; $("googlemap").hidden = false; $("sharebox").hidden = true;
       };
       setTimeout(run, 0);
     },
@@ -1771,6 +1780,7 @@ window.Bundle = Bundle; window.inflate = inflate; window.loadBundle = loadBundle
     },
 
     recompute(fit) {
+      $("googlepanel").hidden = true;
       if (this.state.loop) return this.recomputeLoop(fit);
       this.scanEnd();
       const { from, to, mode } = this.state;
@@ -1802,7 +1812,7 @@ window.Bundle = Bundle; window.inflate = inflate; window.loadBundle = loadBundle
       this.show(true);
       if (fit === true || (fit === "auto" && !this.inView())) this.fit();
       this.writeHash();
-      $("share").hidden = false; $("gpx").hidden = false; $("sharebox").hidden = true;
+      $("share").hidden = false; $("gpx").hidden = false; $("googlemap").hidden = false; $("sharebox").hidden = true;
 
       const search = g.pareto(from.node, to.node, mode, {
         eps: EPS_GAIN_CM, epsNode: EPS_NODE_CM, stress: this.calm(),
@@ -1856,7 +1866,7 @@ window.Bundle = Bundle; window.inflate = inflate; window.loadBundle = loadBundle
       $("turns").hidden = true;
       this.shown = null; this._handoff = null; this._profCur = null;
       $("result").hidden = true; $("prof").hidden = true; $("delta").textContent = ""; $("slpos").textContent = "";
-      $("share").hidden = true; $("gpx").hidden = true; $("sharebox").hidden = true;
+      $("share").hidden = true; $("gpx").hidden = true; $("googlemap").hidden = true; $("googlepanel").hidden = true; $("sharebox").hidden = true;
       $("sl").disabled = false;
     },
 
@@ -1876,6 +1886,7 @@ window.Bundle = Bundle; window.inflate = inflate; window.loadBundle = loadBundle
 
     /* show the family member for the current slider position */
     show(immediate) {
+      $("googlepanel").hidden = true;
       if (!this.family) return;
       const loop = !!this.family.loop;
       const t = this.state.t, n = this.family.unique.length;
@@ -2074,6 +2085,39 @@ window.Bundle = Bundle; window.inflate = inflate; window.loadBundle = loadBundle
           el.append(" ", b);
         }
       });
+    },
+
+    /* Google My Maps imports this line without asking its directions
+     * engine to choose different streets. Keep every displayed vertex. */
+    kml() {
+      const name = this.gpxName().replace(/[<>&"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));
+      const coordinates = this.shown.latlngs.map(([lat, lon]) => lon + "," + lat + ",0").join("\n");
+      return '<?xml version="1.0" encoding="UTF-8"?>\n'
+        + '<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>' + name + '</name>'
+        + '<Style id="route"><LineStyle><color>ff6f8f0f</color><width>5</width></LineStyle></Style>'
+        + '<Placemark><name>' + name + '</name><styleUrl>#route</styleUrl>'
+        + '<LineString><tessellate>1</tessellate><altitudeMode>clampToGround</altitudeMode><coordinates>'
+        + coordinates + '</coordinates></LineString></Placemark></Document></kml>';
+    },
+    downloadKml() {
+      if (!this.shown) return;
+      const blob = new Blob([this.kml()], { type: "application/vnd.google-earth.kml+xml" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob); link.download = "flatten-sf-exact-route.kml";
+      document.body.appendChild(link); link.click(); link.remove();
+      setTimeout(() => URL.revokeObjectURL(link.href), 2000);
+    },
+    copyGoogleMap() {
+      const input = $("googleurl"), status = $("googlestatus");
+      // Validate without throwing for an empty or malformed pasted link.
+      const match = input.value.trim().match(/^https:\/\/(?:www\.)?google\.com\/maps\/d\/[^\s]*[?&]mid=([A-Za-z0-9_-]+)(?:[&#]|$)/);
+      if (!match) { status.textContent = "Paste the Google My Maps link after importing your route."; return; }
+      const url = "https://www.google.com/maps/d/viewer?mid=" + match[1];
+      input.value = url;
+      const copied = () => { status.textContent = "Google Maps link copied. The saved map keeps the imported path."; };
+      const fallback = () => { input.focus(); input.select(); status.textContent = "Select and copy the map link above."; };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(copied, fallback);
+      else fallback();
     },
 
     /* ---------------------------------------------------------------- GPX */

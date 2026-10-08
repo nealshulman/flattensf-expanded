@@ -71,9 +71,22 @@
   </div>
   <div class="statusrow">
     <div class="status" id="status"></div>
-    <span class="links"><button class="link" id="share" type="button" hidden>Copy link</button><button class="link" id="gpx" type="button" hidden title="Download this route as a GPX file for Strava, Garmin and the rest">GPX</button></span>
+    <span class="links"><button class="link" id="share" type="button" hidden>Copy link</button><button class="link" id="googlemap" type="button" hidden>Google My Maps</button><button class="link" id="gpx" type="button" hidden title="Download this route as a GPX file for Strava, Garmin and the rest">GPX</button></span>
   </div>
   <input id="sharebox" type="text" readonly hidden aria-label="Link to this route">
+  <details id="googlepanel" class="googlepanel" hidden>
+    <summary>Save this exact path in Google My Maps</summary>
+    <p>Export the route as a saved line so Google keeps every point in this path.</p>
+    <ol>
+      <li><button id="kml" type="button">Download exact route</button></li>
+      <li><a href="https://www.google.com/maps/d/" target="_blank" rel="noopener">Open Google My Maps</a>, create a map, click Import, and upload the downloaded file.</li>
+      <li>In Google, click Share and turn on link sharing if others should be able to open it.</li>
+    </ol>
+    <label for="googleurl">Paste that map's link</label>
+    <input id="googleurl" type="url" placeholder="https://www.google.com/maps/d/..." aria-describedby="googlestatus">
+    <button id="googlecopy" type="button">Copy Google Maps link</button>
+    <p id="googlestatus" role="status">The import happens in your Google account. This saved line is for following the path, not turn-by-turn directions.</p>
+  </details>
   <div class="slider">
     <input type="range" id="sl" min="0" max="1" step="0.001" value="1" aria-label="From shortest to flattest">
     <div class="ends"><span id="end0">Shortest</span><b id="slpos"></b><span id="end1">Flattest</span></div>

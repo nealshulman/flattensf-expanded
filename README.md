@@ -21,6 +21,10 @@ Walking and biking both use physical distance for A-to-B routes. The comfort-wei
 
 `npm run deploy:production` rejects every branch except `main`, rejects uncommitted files, and compares HEAD to live `origin/main`. The Vercel production build independently verifies the supplied commit against the public repository's current `main`. Vercel Git deployments are enabled for `main` only. No routing API keys or backend service are required.
 
+## Exact Google My Maps route
+
+The Google My Maps button exports every vertex of the selected route as a KML LineString. Create a map in Google, import that file, enable link sharing as needed, then paste its map link into the route finder to copy the viewer link. The saved line preserves the path instead of requesting recalculated directions. Map creation/import still occurs in Google's signed-in page; this app does not silently create maps in visitors' accounts. Turn-by-turn Google Maps navigation is separate and can reroute.
+
 The original analysis pipeline and its README follow. Its published findings and screenshots describe the upstream project; they have not been regenerated for this fork.
 
 ---

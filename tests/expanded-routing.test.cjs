@@ -151,3 +151,27 @@ test('distance control change really recomputes the selected allowance',()=>{
   assert.equal(h.app.state.expansion,100);assert.equal(recomputed,true);
   assert.match(h.element('expansionhint').textContent,/up to 2 miles/);
 });
+test('KML keeps every coordinate of the selected SF route with no simplification',()=>{
+  const h=appHarness();h.app.recompute(false);h.flush();
+  const bytes=new Uint8Array(zlib.gunzipSync(fs.readFileSync('site/'+data.bundle_url)));
+  vm.runInContext('this.Geometry=Geometry;',context);
+  const geometry=new context.Geometry(new context.Bundle(bytes,data.manifest),data.meta);
+  h.app.shown=h.app.family.unique.at(-1);
+  h.app.shown.latlngs=graph.geometry(h.app.shown.arcs,geometry);
+  const kml=h.app.kml();
+  const decoded=kml.match(/<coordinates>([\s\S]*?)<\/coordinates>/)[1].trim().split(/\s+/).map(line=>line.split(',').map(Number));
+  assert.equal(decoded.length,h.app.shown.latlngs.length);
+  for(let i=0;i<decoded.length;i++) assert.deepEqual(decoded[i],[h.app.shown.latlngs[i][1],h.app.shown.latlngs[i][0],0]);
+  fs.writeFileSync('/tmp/flatten-sf-exact-route.kml',kml);
+  console.log(`Exact Google map sample: ${decoded.length} unchanged vertices`);
+});
+test('Google map copy validates the destination and copies its actual viewer link',async()=>{
+  const h=appHarness();let copied;
+  h.sandbox.navigator={clipboard:{writeText:async(text)=>{copied=text;}}};
+  h.element('googleurl').value='https://www.google.com/maps/d/u/0/edit?mid=example-map-123&ll=37.7';
+  h.app.copyGoogleMap();await Promise.resolve();
+  assert.equal(copied,'https://www.google.com/maps/d/viewer?mid=example-map-123');
+  copied=undefined;h.element('googleurl').value='https://evil.example/maps/d/?mid=bad';h.app.copyGoogleMap();
+  assert.equal(copied,undefined);
+  assert.match(h.element('googlestatus').textContent,/Paste the Google My Maps link/);
+});
