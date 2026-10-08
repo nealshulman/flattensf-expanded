@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Flatten SF</title>
-<meta name="description" content="flattensf: the flattest walking or cycling route between any two places in San Francisco, and every route between it and the shortest one.">
+<title>Flatten SF Further</title>
+<meta name="description" content="Find a San Francisco walking or biking route with the least climbing. Explore routes up to 400% longer than the shortest distance.">
 <!--__HEAD_EXTRA__-->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,10 +14,10 @@
 </head>
 <body>
 <div id="map"></div>
-<div class="credit" id="credit">by <a href="https://almostimplemented.com" rel="author">Drew Edwards</a></div>
+<div class="credit" id="credit">Based on <a href="https://almostimplemented.com" rel="author">Drew Edwards' Flatten SF</a></div>
 <section id="card" aria-label="flattensf: plan a flat route">
   <div class="head">
-    <h1>Flatten SF <small>flat routes across San Francisco</small></h1>
+    <h1>Flatten SF Further <small>go farther, climb less</small></h1>
     <div class="seg units" id="units" role="group" aria-label="Units">
       <button type="button" data-u="mi" aria-pressed="true">mi</button>
       <button type="button" data-u="km" aria-pressed="false">km</button>
@@ -56,6 +56,19 @@
     <input type="checkbox" id="outback">
     <span>Allow out and back <small>the same streets there and back, often the flattest way</small></span>
   </label>
+  <div class="expansion" id="expansionrow">
+    <label for="expansion">Allow a longer route</label>
+    <select id="expansion" aria-describedby="expansionhint">
+      <option value="0">Shortest distance only</option>
+      <option value="25">Up to 25% longer (1.25x)</option>
+      <option value="50">Up to 50% longer (1.5x)</option>
+      <option value="100">Up to 100% longer (2x)</option>
+      <option value="200">Up to 200% longer (3x)</option>
+      <option value="300">Up to 300% longer (4x)</option>
+      <option value="400" selected>Up to 400% longer (5x)</option>
+    </select>
+    <small id="expansionhint">Search farther for less climbing. A 1-mile shortest route can go up to 5 miles.</small>
+  </div>
   <div class="statusrow">
     <div class="status" id="status"></div>
     <span class="links"><button class="link" id="share" type="button" hidden>Copy link</button><button class="link" id="gpx" type="button" hidden title="Download this route as a GPX file for Strava, Garmin and the rest">GPX</button></span>
@@ -78,17 +91,22 @@
     <p class="fine">Routes are computed in your browser over 160,000 street
     segments, with USGS 1&nbsp;m lidar elevation on the Overture /
     OpenStreetMap street graph. The slider runs the whole trade-off between
-    distance and climbing: every route nothing else beats on both, from
-    the shortest to the flattest worth walking. Sliding right never
+    distance and climbing, from the shortest route to the least total
+    climbing within your distance limit. Up to 400% longer means up to five
+    times the shortest street distance. Longer routes are allowed, never forced. Sliding right never
     shortens the route and never adds climbing. Climbing is total gain,
-    not the difference between the endpoints. Stairs count on foot, not
+    not the difference between the endpoints. Least climbing does not
+    guarantee the gentlest individual hill. The search uses the elevation
+    data in this map, not a guarantee about real-world conditions. If a
+    search reaches its size limit, the result is marked as the best found
+    so far. Stairs count on foot, not
     on a bike.</p>
     <p class="fine">The loop button turns the trip into a loop from one
     start: the slider sets the distance, dozens of loops of about that
     length are tried in every direction and the flattest is shown; tick
     <i>allow out and back</i> to include the same streets there and back,
     which is often flatter still. On a
-    bike, <i>prefer calm streets</i> counts protected lanes and paths
+    bike loop, <i>prefer calm streets</i> counts protected lanes and paths
     (SFMTA bikeway network) as shorter than they are and busy arterials as
     longer.</p>
     <p class="fine"><i>mi / km</i> at the top switches between miles and
@@ -98,7 +116,7 @@
     built into this page.
     <a href="/*__REPO_URL__*/">Source, data and the full analysis</a>.</p>
   </details>
-  <p class="credit-inline">by <a href="https://almostimplemented.com" rel="author">Drew Edwards</a></p>
+  <p class="credit-inline">Based on <a href="https://almostimplemented.com" rel="author">Drew Edwards' Flatten SF</a></p>
 </section>
 <script>/*__LEAFLET_JS__*/</script>
 <script>window.DATA = /*__DATA__*/;</script>

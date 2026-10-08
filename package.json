@@ -1,0 +1,11 @@
+{
+  "name": "flattensf-expanded",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-site.mjs",
+    "test": "node --test tests/expanded-routing.test.cjs",
+    "deploy:production": "node scripts/deploy-production.mjs"
+  }
+}

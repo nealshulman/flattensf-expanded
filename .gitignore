@@ -15,3 +15,8 @@ __pycache__/
 .venv/
 
 data/sensitivity/
+
+.vercel/
+.firecrawl/
+node_modules/
+.vercel

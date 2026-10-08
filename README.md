@@ -1,3 +1,30 @@
+# Flatten SF Further
+
+Live: https://flattensf-expanded.vercel.app
+
+This is Neal Shulman's expanded version of [Drew Edwards' Flatten SF](https://github.com/almostimplemented/flattensf). The original MIT code license and street/elevation attribution are preserved below.
+
+The A-to-B route finder replaces the original `alpha = 200` cutoff with an explicit distance allowance: 0%, 25%, 50%, 100%, 200%, 300%, or **400% longer** (the default). 400% longer allows five times the shortest physical street distance. The search minimizes total uphill gain within that limit, using the existing quantized elevation graph. It does not minimize maximum slope, promise real-world accessibility, or force longer routes when a shorter one already minimizes climbing.
+
+The Pareto search uses integer-exact climbing comparisons rather than accumulating a tolerance at intermediate nodes. It keeps its existing four-million-label safety limit; truncated searches are explicitly marked as best found so far. The displayed slider keeps at most 30 routes while retaining both endpoints. Share links include the distance allowance and old links remain readable.
+
+Walking and biking both use physical distance for A-to-B routes. The comfort-weighted calm-streets option remains available for bike loops, whose behavior is unchanged.
+
+## Local build and verification
+
+- `npm ci` (no runtime packages are required)
+- `npm run build` rebuilds `site/` from the source UI and the original packed graph, without needing to regenerate the full GIS dataset.
+- `npm test` checks independent exhaustive routing ground truth, the exact 400% boundary, real San Francisco routes in both modes across every allowance, share-link/UI routing wiring, truncation reporting, and production source guards.
+- Serve `site/` with any static HTTP server to use the route finder locally.
+
+## Vercel deployment
+
+`npm run deploy:production` rejects every branch except `main`, rejects uncommitted files, and compares HEAD to live `origin/main`. The Vercel production build independently verifies the supplied commit against the public repository's current `main`. Vercel Git deployments are enabled for `main` only. No routing API keys or backend service are required.
+
+The original analysis pipeline and its README follow. Its published findings and screenshots describe the upstream project; they have not been regenerated for this fork.
+
+---
+
 # flattensf
 
 **[flattensf.com](https://flattensf.com/)**: the flattest route between any
